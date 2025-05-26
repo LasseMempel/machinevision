@@ -12,18 +12,33 @@ checkpoint = [
 detector = pipeline(model=checkpoint, task="zero-shot-object-detection")
 
 
-image_path = "C:/repos/machinevision/Blockbergung Perlen_cropped.png"
+image_path = "C:/repos/machinevision/pictures/Blockbergung Perlen_cropped.png"
 image = Image.open(image_path).convert("RGB")
 #image.show()
 
 predictions = detector(
     image,
-    candidate_labels=["bead"],
+    candidate_labels=["fracture"],
 )
 
 #print(predictions)
 
 draw = ImageDraw.Draw(image)
+
+for prediction in predictions:
+    box = prediction["box"]
+    label = prediction["label"]
+    score = prediction["score"]
+    xmin, ymin, xmax, ymax = box.values()
+
+    # Draw an ellipse inside the bounding box
+    ellipse_box = (xmin, ymin, xmax, ymax)
+    draw.ellipse(ellipse_box, outline="red", width=2)
+
+    # Place label just above the ellipse
+    draw.text((xmin, ymin - 10), f"{label}: {round(score, 2)}", fill="white")
+
+image.show()
 
 """
 for prediction in predictions:
@@ -56,21 +71,6 @@ for prediction in predictions:
     draw.ellipse(ellipse_box, outline="red", width=2)
     draw.text((cx + radius, cy), f"{label}: {round(score, 2)}", fill="white")
 """
-
-for prediction in predictions:
-    box = prediction["box"]
-    label = prediction["label"]
-    score = prediction["score"]
-    xmin, ymin, xmax, ymax = box.values()
-
-    # Draw an ellipse inside the bounding box
-    ellipse_box = (xmin, ymin, xmax, ymax)
-    draw.ellipse(ellipse_box, outline="red", width=2)
-
-    # Place label just above the ellipse
-    draw.text((xmin, ymin - 10), f"{label}: {round(score, 2)}", fill="white")
-
-image.show()
 
 
 
