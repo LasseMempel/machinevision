@@ -2,6 +2,9 @@ from transformers import pipeline
 import numpy as np
 from PIL import Image
 from PIL import ImageDraw
+import torch
+
+# Load model
 
 checkpoint = [
     #"IDEA-Research/grounding-dino-base",
@@ -9,16 +12,24 @@ checkpoint = [
     #"google/owlvit-base-patch32",
     "google/owlv2-large-patch14-ensemble"
              ][0]
-detector = pipeline(model=checkpoint, task="zero-shot-object-detection")
+
+detector = pipeline(
+    model=checkpoint,
+    task="zero-shot-object-detection",
+    device=-1   # -1 = CPU, 0 = first CUDA GPU
+)
 
 
-image_path = "C:/repos/machinevision/pictures/Blockbergung Perlen_cropped.png"
+
+image_path = "male_charioteer_Quadriga.jpg"
 image = Image.open(image_path).convert("RGB")
 #image.show()
 
+torch.cuda.empty_cache()
+
 predictions = detector(
     image,
-    candidate_labels=["fracture"],
+    candidate_labels=["flaking", "fracture", "crack", "hole"]
 )
 
 #print(predictions)
@@ -38,7 +49,8 @@ for prediction in predictions:
     # Place label just above the ellipse
     draw.text((xmin, ymin - 10), f"{label}: {round(score, 2)}", fill="white")
 
-image.show()
+image.save("output_"+image_path)
+
 
 """
 for prediction in predictions:
