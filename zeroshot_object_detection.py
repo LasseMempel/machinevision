@@ -19,8 +19,6 @@ detector = pipeline(
     device=-1   # -1 = CPU, 0 = first CUDA GPU
 )
 
-
-
 image_path = "male_charioteer_Quadriga.jpg"
 image = Image.open(image_path).convert("RGB")
 #image.show()
@@ -29,7 +27,7 @@ torch.cuda.empty_cache()
 
 predictions = detector(
     image,
-    candidate_labels=["flaking", "fracture", "crack", "hole"]
+    candidate_labels=["flaking", "fracture", "crack", "hole", "corrosion", "oxidation", "break"]
 )
 
 #print(predictions)
@@ -40,6 +38,8 @@ for prediction in predictions:
     box = prediction["box"]
     label = prediction["label"]
     score = prediction["score"]
+    if score < 0.3:
+        continue
     xmin, ymin, xmax, ymax = box.values()
 
     # Draw an ellipse inside the bounding box
